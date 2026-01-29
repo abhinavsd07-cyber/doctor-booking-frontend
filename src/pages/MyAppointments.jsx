@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../Context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
