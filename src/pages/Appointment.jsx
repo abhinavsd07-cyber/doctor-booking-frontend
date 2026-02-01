@@ -102,14 +102,21 @@ const Appointment = () => {
                 { headers: { token } }
             );
 
-            if (data.success) {
-                toast.success(data.message);
-                // This triggers the global state update so slots refresh instantly
-                await getDoctorsData(); 
-                navigate("/my-appointments");
-            } else {
-                toast.error(data.message);
-            }
+           if (data.success) {
+        // 1. Show the toast immediately
+        toast.success(data.message);
+
+        // 2. Update the slots in the background
+        getDoctorsData();
+
+        // 3. WAIT for 1 second (1000ms) before navigating.
+        // This is the key to making sure the user sees the success message!
+        setTimeout(() => {
+          navigate("/my-appointments");
+        }, 1000);
+      } else {
+        toast.error(data.message);
+      }
         } catch (error) {
             console.log(error);
             toast.error(error.message);
