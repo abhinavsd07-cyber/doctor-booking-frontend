@@ -22,8 +22,8 @@ const Appointment = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState("");
-  const [isChanging, setIsChanging] = useState(false); // For premium transition
 
+  // --- LOGIC: DATA FETCHING ---
   const loadDoctorDetails = useCallback(() => {
     const selectedDoctor = doctors.find((doc) => doc._id === docId);
     setDoctor(selectedDoctor || null);
@@ -77,13 +77,6 @@ const Appointment = () => {
     setAvailableSlots(slotsByDay);
   }, [doctor]);
 
-  const handleDayChange = (index) => {
-    setIsChanging(true);
-    setSelectedDayIndex(index);
-    setSelectedTime("");
-    setTimeout(() => setIsChanging(false), 300); // Duration of fade-in
-  };
-
   const handleBookAppointment = async () => {
     if (!token) {
       toast.warn("Please login to book an appointment");
@@ -116,133 +109,148 @@ const Appointment = () => {
   useEffect(() => { loadDoctorDetails(); }, [loadDoctorDetails]);
   useEffect(() => { generateSlots(); }, [generateSlots]);
 
-  if (!doctor) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading Profile...</div>;
+  // --- UI: LOADING STATE ---
+  if (!doctor) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
+      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-slate-500 font-medium">Fetching Doctor Profile...</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans antialiased">
-      <div className="max-w-7xl mx-auto px-4 py-16">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
+      <div className="max-w-6xl mx-auto pt-8 px-4">
         
-        {/* --- DOCTOR HERO SECTION --- */}
-        <div className="flex flex-col lg:flex-row gap-12 items-start mb-24">
-          <div className="w-full lg:w-1/3 group">
-            <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-700 group-hover:scale-[1.03]">
-              <img src={doctor.image} alt={doctor.name} className="w-full h-[500px] object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60" />
-              <div className="absolute bottom-8 left-8 inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-5 py-2.5 rounded-2xl shadow-2xl">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-white">Active Now</span>
+        {/* --- GRID LAYOUT --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* LEFT: DOCTOR PROFILE STICKY SIDEBAR */}
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/60 border border-white sticky top-8">
+              <div className="relative h-96 lg:h-[450px]">
+                <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm border border-white/50">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-tighter">Verified Specialist</span>
+                </div>
+              </div>
+              
+              <div className="p-8">
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-2xl font-bold text-slate-900">{doctor.name}</h1>
+                    <img src={assets.verified_icon} className="w-5 h-5" alt="" />
+                  </div>
+                  <p className="text-blue-600 font-bold text-sm uppercase tracking-wide">{doctor.speciality}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Experience</p>
+                    <p className="text-sm font-bold text-slate-700">{doctor.experience}</p>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Fee</p>
+                    <p className="text-sm font-bold text-slate-700">${doctor.fees}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    About
+                  </h4>
+                  <p className="text-slate-500 text-sm leading-relaxed italic">
+                    "{doctor.about}"
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 space-y-8 py-4">
-            <div>
-              <div className="flex items-center gap-4 mb-4">
-                <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-slate-900 leading-none">{doctor.name}</h1>
-                <img src={assets.verified_icon} className="w-10 h-10 shadow-sm" alt="Verified" />
+          {/* RIGHT: BOOKING SYSTEM */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* DATE SECTION */}
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/50">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-slate-900">Select Date</h2>
+                <p className="text-slate-400 text-sm">Choose your preferred day for the visit</p>
               </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <span className="bg-indigo-600 text-white px-6 py-2 rounded-2xl text-sm font-bold shadow-xl shadow-indigo-100 uppercase tracking-wider">
-                  {doctor.speciality}
-                </span>
-                <span className="bg-white text-slate-500 px-6 py-2 rounded-2xl text-sm font-bold border border-slate-100 shadow-sm">
-                  {doctor.degree} • {doctor.experience}
-                </span>
+
+              <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                {availableSlots.map((slots, index) => (
+                  <button
+                    key={index}
+                    onClick={() => { setSelectedDayIndex(index); setSelectedTime(""); }}
+                    className={`flex-shrink-0 w-20 py-5 rounded-2xl transition-all duration-300 border-2 ${
+                      selectedDayIndex === index
+                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-105"
+                        : "bg-white border-slate-100 text-slate-500 hover:border-blue-200"
+                    }`}
+                  >
+                    <p className="text-[10px] font-bold uppercase mb-1">
+                      {slots[0] && DAYS_OF_WEEK[slots[0].datetime.getDay()]}
+                    </p>
+                    <p className="text-xl font-black">
+                      {slots[0] && slots[0].datetime.getDate()}
+                    </p>
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/50 border border-white relative overflow-hidden">
-               <h3 className="text-sm font-black uppercase tracking-[0.3em] text-indigo-600 mb-6 flex items-center gap-3">
-                 <span className="w-10 h-[2px] bg-indigo-600" /> Professional Bio
-               </h3>
-               <p className="text-slate-500 leading-relaxed text-xl font-medium leading-relaxed italic">"{doctor.about}"</p>
-               
-               <div className="mt-12 pt-10 border-t border-slate-50 flex items-center justify-between">
-                 <div>
-                    <p className="text-slate-400 text-[10px] uppercase tracking-[0.3em] font-black">Private Consultation</p>
-                    <p className="text-5xl font-black text-slate-900 mt-2 tracking-tight">${doctor.fees}</p>
-                 </div>
-                 <div className="text-right">
-                    <p className="text-slate-400 text-[10px] uppercase tracking-[0.3em] font-black">Primary Clinic</p>
-                    <p className="text-slate-900 font-bold text-lg mt-2 italic">Elite Health Pavilion</p>
-                 </div>
-               </div>
-            </div>
-          </div>
-        </div>
+            {/* TIME SECTION */}
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/50">
+               <div className="mb-6">
+                <h2 className="text-xl font-bold text-slate-900">Available Slots</h2>
+                <p className="text-slate-400 text-sm">Choose a time that works best for you</p>
+              </div>
 
-        {/* --- CENTERED BOOKING SECTION --- */}
-        <div className="max-w-5xl mx-auto py-20 bg-white/40 rounded-[3rem] backdrop-blur-sm border border-white/60">
-          <div className="text-center mb-16 px-6">
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-4">Reserve Your Presence</h2>
-            <div className="w-20 h-1.5 bg-indigo-600 mx-auto rounded-full mb-4" />
-            <p className="text-slate-500 font-semibold uppercase tracking-widest text-xs">Curated Time Slots Just For You</p>
-          </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {availableSlots[selectedDayIndex]?.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedTime(item.time)}
+                    className={`py-3.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
+                      selectedTime === item.time
+                        ? "bg-slate-900 border-slate-900 text-white shadow-md"
+                        : "bg-slate-50 border-transparent text-slate-600 hover:bg-white hover:border-blue-400"
+                    }`}
+                  >
+                    {item.time.toLowerCase()}
+                  </button>
+                ))}
+              </div>
 
-          {/* Centered Date Selector */}
-          <div className="flex justify-center md:justify-center gap-6 overflow-x-auto pb-10 no-scrollbar snap-x px-8">
-            {availableSlots.map((slots, index) => (
-              <button
-                key={index}
-                onClick={() => handleDayChange(index)}
-                className={`snap-center min-w-[110px] py-8 rounded-[2.5rem] flex flex-col items-center transition-all duration-500 transform
-                ${selectedDayIndex === index 
-                  ? "bg-slate-900 text-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] -translate-y-2 scale-110" 
-                  : "bg-white text-slate-400 border border-slate-100 hover:border-indigo-200 hover:shadow-lg"}`}
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-3">
-                  {slots[0] && DAYS_OF_WEEK[slots[0].datetime.getDay()]}
-                </span>
-                <span className="text-3xl font-black">
-                  {slots[0] && slots[0].datetime.getDate()}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Centered Time Grid with Fade Animation */}
-          <div className={`flex justify-center transition-all duration-300 ${isChanging ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 w-full max-w-4xl px-8 mt-8">
-              {availableSlots[selectedDayIndex]?.map((slot, index) => (
+              {/* BOOKING FOOTER */}
+              <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Scheduled For</p>
+                  <p className="text-slate-900 font-black text-lg">
+                    {availableSlots[selectedDayIndex]?.[0]?.datetime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {selectedTime ? ` at ${selectedTime}` : ' — Select Time'}
+                  </p>
+                </div>
+                
                 <button
-                  key={index}
-                  onClick={() => setSelectedTime(slot.time)}
-                  className={`py-5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all duration-300 border-2
-                  ${selectedTime === slot.time
-                    ? "bg-indigo-600 text-white border-transparent shadow-2xl shadow-indigo-300 scale-105"
-                    : "bg-white text-slate-500 border-slate-100 hover:border-indigo-600 hover:text-indigo-600"}`}
+                  onClick={handleBookAppointment}
+                  className="w-full sm:w-auto px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
-                  {slot.time}
+                  Confirm Appointment
                 </button>
-              ))}
+              </div>
+            </div>
+
+            {/* RELATED DOCTORS */}
+            <div className="pt-10">
+              <div className="flex items-center gap-4 mb-8">
+                <h3 className="text-lg font-bold text-slate-900">Similar Specialists</h3>
+                <div className="h-px flex-1 bg-slate-200"></div>
+              </div>
+              <RelatedDoctors docId={docId} speciality={doctor.speciality} />
             </div>
           </div>
 
-          {/* Premium Call to Action */}
-          <div className="mt-20 flex flex-col items-center">
-            <button
-              onClick={handleBookAppointment}
-              className="group px-24 py-7 bg-slate-900 text-white rounded-full font-black text-sm uppercase tracking-[0.3em] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] hover:bg-indigo-700 hover:-translate-y-2 transition-all duration-500 active:scale-95 flex items-center gap-4"
-            >
-              Book Now
-              <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </button>
-            <div className="flex items-center gap-2 mt-8">
-              <div className="w-2 h-2 rounded-full bg-indigo-600" />
-              <p className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">Instant confirmation via email</p>
-            </div>
-          </div>
-        </div>
-
-        {/* --- RELATED SECTION --- */}
-        <div className="mt-40">
-          <div className="flex items-center gap-6 mb-12">
-            <h4 className="text-3xl font-black text-slate-900 tracking-tighter shrink-0">Similar Specialists</h4>
-            <div className="h-[2px] w-full bg-slate-100" />
-          </div>
-          <RelatedDoctors docId={docId} speciality={doctor.speciality} />
         </div>
       </div>
     </div>
