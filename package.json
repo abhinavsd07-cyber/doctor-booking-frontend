@@ -19,6 +19,7 @@
     "flowbite-react": "^0.12.16",
     "framer-motion": "^12.34.0",
     "nodemailer": "^8.0.1",
+    "nodemailer-email-sender": "^1.0.1",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
