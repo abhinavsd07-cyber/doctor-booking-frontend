@@ -15,12 +15,9 @@ const MyAppointments = () => {
   const [showSuccessUI, setShowSuccessUI] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(null);
 
-  // --- ADDED: Date Formatting Helper ---
   const slotDateFormat = (slotDate) => {
-    const dateArray = slotDate.split('_'); // Splits "22_08_2024"
+    const dateArray = slotDate.split('_');
     const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    // Returns format: 22 Aug 2024
     return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
   };
 
@@ -33,7 +30,6 @@ const MyAppointments = () => {
         setAppointments(data.appointments.reverse());
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
   };
@@ -45,12 +41,9 @@ const MyAppointments = () => {
         { appointmentId },
         { headers: { token } },
       );
-
       if (data.success) {
         toast.success(data.message);
         getUserAppointments();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -68,7 +61,6 @@ const MyAppointments = () => {
       if (data.success) {
         window.location.replace(data.session_url);
       } else {
-        toast.error(data.message);
         setPaymentLoading(null);
       }
     } catch (error) {
@@ -104,8 +96,6 @@ const MyAppointments = () => {
       if (data.success) {
         toast.success(data.message);
         getUserAppointments();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -113,98 +103,94 @@ const MyAppointments = () => {
   };
 
   useEffect(() => {
-    if (success === "true" && appointmentId && token) {
-      verifyStripe();
-    }
+    if (success === "true" && appointmentId && token) verifyStripe();
   }, [success, appointmentId, token]);
 
   useEffect(() => {
-    if (token) {
-      getUserAppointments();
-    }
+    if (token) getUserAppointments();
   }, [token]);
 
   return (
-    <div className="relative">
+    <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 md:px-10 font-sans">
+      {/* Success Overlay */}
       {showSuccessUI && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm animate-in fade-in duration-500">
-          <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center animate-bounce shadow-xl">
-            <svg
-              className="w-12 h-12 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="3"
-                d="M5 13l4 4L19 7"
-              />
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md">
+          <div className="w-20 h-20 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl animate-bounce">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="mt-6 text-2xl font-bold text-gray-800">
-            Payment Successful!
-          </p>
-          <p className="text-gray-500">Your appointment is confirmed.</p>
+          <p className="mt-6 text-xl font-bold text-slate-900 tracking-tight">Payment Successful</p>
         </div>
       )}
 
-      <div>
-        <p className="pb-3 mt-12 font-medium text-zinc-700 border-b">
-          My Appointments
-        </p>
-        <div className="flex flex-col gap-4 mt-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center gap-4 mb-10">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Appointments</h1>
+          <div className="h-[1px] flex-1 bg-slate-200"></div>
+          <span className="text-xs font-semibold text-slate-500 bg-white px-4 py-1.5 rounded-full border border-slate-200">
+            {appointments.length} Scheduled
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-5">
           {appointments.map((item, index) => (
             <div
-              className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-4 border-b last:border-none"
               key={index}
+              className="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 flex flex-col lg:flex-row gap-6 shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div>
-                <img
-                  className="w-32 bg-indigo-50 rounded"
-                  src={item.docData.image}
-                  alt=""
+              {/* Doctor Image */}
+              <div className="shrink-0">
+                <img 
+                  className="w-full lg:w-32 h-40 lg:h-32 rounded-2xl object-cover bg-slate-50 border border-slate-100" 
+                  src={item.docData.image} 
+                  alt={item.docData.name} 
                 />
               </div>
-              <div className="flex-1 text-sm text-zinc-600">
-                <p className="text-neutral-800 font-semibold">
-                  {item.docData.name}
-                </p>
-                <p>{item.docData.speciality}</p>
-                <p className="text-zinc-700 font-medium mt-1">Address:</p>
-                <p className="text-xs">{item.docData.address.line1}</p>
-                <p className="text-xs">{item.docData.address.line2}</p>
-                <p className="text-xs mt-1">
-                  <span className="text-sm text-neutral-700 font-medium">
-                    Date & Time:
-                  </span>{" "}
-                  {/* UPDATED: Using format function and adding comma */}
-                  {slotDateFormat(item.slotDate)}, {item.slotTime}
-                </p>
+
+              {/* Info Middle */}
+              <div className="flex-1">
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-slate-900">{item.docData.name}</h2>
+                  <p className="text-blue-600 text-xs font-semibold mt-0.5">{item.docData.speciality}</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Location</p>
+                    <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
+                      {item.docData.address.line1}, {item.docData.address.line2}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date & Time</p>
+                    <p className="text-sm text-slate-800 font-semibold mt-1">
+                      {slotDateFormat(item.slotDate)} <span className="text-slate-300 mx-1">|</span> {item.slotTime}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2 justify-end">
+              {/* Actions Right */}
+              <div className="flex flex-col gap-2.5 justify-center lg:w-52 shrink-0">
                 {item.isCompleted && (
-                  <button className="sm:min-w-48 py-2 border border-blue-500 rounded text-blue-500 bg-blue-50 cursor-default">
+                  <div className="w-full py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 font-bold text-xs text-center">
                     Completed
-                  </button>
+                  </div>
                 )}
 
                 {!item.cancelled && !item.payment && !item.isCompleted && (
                   <>
                     <button
-                      disabled={paymentLoading === item._id}
                       onClick={() => payStripe(item._id)}
-                      className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-green-600 hover:text-white transition-all duration-300"
+                      disabled={paymentLoading === item._id}
+                      className="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-blue-600 transition-all active:scale-95"
                     >
-                      {paymentLoading === item._id
-                        ? "Redirecting..."
-                        : "Pay Online"}
+                      {paymentLoading === item._id ? "Processing..." : "Pay Online"}
                     </button>
                     <button
                       onClick={() => cancelAppointment(item._id)}
-                      className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300"
+                      className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all"
                     >
                       Cancel Appointment
                     </button>
@@ -212,19 +198,19 @@ const MyAppointments = () => {
                 )}
 
                 {!item.cancelled && item.payment && !item.isCompleted && (
-                  <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 font-medium bg-green-50 cursor-default">
-                    Paid & Confirmed
-                  </button>
+                  <div className="w-full py-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold text-xs text-center flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Confirmed
+                  </div>
                 )}
 
                 {item.cancelled && (
                   <div className="flex flex-col gap-2">
-                    <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500 cursor-default">
-                      Appointment Cancelled
-                    </button>
+                    <div className="w-full py-2.5 rounded-xl bg-red-50 text-red-500 border border-red-100 font-bold text-xs text-center">
+                      Cancelled
+                    </div>
                     <button
                       onClick={() => deleteAppointment(item._id)}
-                      className="text-xs text-gray-400 text-center hover:text-red-600 transition-all"
+                      className="text-[10px] font-bold text-slate-400 hover:text-red-600 transition-all text-center uppercase tracking-tighter"
                     >
                       Remove from history
                     </button>

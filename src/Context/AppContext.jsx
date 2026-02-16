@@ -5,37 +5,31 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const backendURL =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+  const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+  
   const [doctors, setDoctors] = useState([]);
-  // Add these to your existing AppContext.jsx state
-  const [token, setToken] = useState(
-    localStorage.getItem("token") ? localStorage.getItem("token") : false,
-  );
+  const [token, setToken] = useState(localStorage.getItem("token") || false);
   const [userData, setUserData] = useState(false);
 
-  // 1. DEFINE the function first
+  // --- Fetch Doctors Data ---
   const getDoctorsData = async () => {
     try {
       const { data } = await axios.get(`${backendURL}/api/doctor/list`);
       if (data.success) {
-        toast.success(data.message);
         setDoctors(data.doctors);
       } else {
-        toast.error(data.message);
-        toast.error("Could not fetch doctors data");
+        toast.error("Unable to refresh doctors list");
       }
     } catch (error) {
-      console.error("Error fetching doctors data:", error);
-      toast.error(error.message);
+      console.error("API Error (Doctors):", error.message);
+      toast.error("Network error: Please try again later.");
     }
   };
-  // API to load user profile using the token
- const loadUserProfileData = async () => {
+
+  // --- Load User Profile Data ---
+  const loadUserProfileData = async () => {
     try {
-      // It's safer to use the token directly from localStorage if state is lagging
       const currentToken = token || localStorage.getItem('token');
-      
       if (!currentToken) return;
 
       const { data } = await axios.get(`${backendURL}/api/user/get-profile`, {
@@ -43,19 +37,22 @@ const AppContextProvider = (props) => {
       });
 
       if (data.success) {
-        // We spread the data to ensure React detects a fresh object reference
+        // Deep copy to ensure state reference change
         setUserData({ ...data.userData });
-        console.log("Updated UI with:", data.userData.phone);
       } else {
+        // If token is invalid/expired, clear it
+        if (data.message === "Unauthorized") {
+           logout();
+        }
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error("API Error (User):", error);
+      toast.error("Session expired or connection lost.");
     }
   };
 
-  // 3. ASSIGN to the value object (After both are ready)
+  // --- Shared Value Object ---
   const value = {
     doctors,
     getDoctorsData,
@@ -67,11 +64,12 @@ const AppContextProvider = (props) => {
     loadUserProfileData,
   };
 
-  // 2. CALL the function in useEffect (After it is defined)
+  // Initial Load: Doctors
   useEffect(() => {
     getDoctorsData();
   }, []);
-  // Load profile whenever token changes
+
+  // Effect: Sync User Data on Token Change
   useEffect(() => {
     if (token) {
       loadUserProfileData();
@@ -81,7 +79,9 @@ const AppContextProvider = (props) => {
   }, [token]);
 
   return (
-    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
+    <AppContext.Provider value={value}>
+      {props.children}
+    </AppContext.Provider>
   );
 };
 

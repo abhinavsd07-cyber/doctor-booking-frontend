@@ -1,14 +1,19 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import { NavLink, useNavigate } from "react-router-dom";
-import { AppContext } from "../Context/AppContext"; // Import Context
+import { AppContext } from "../Context/AppContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
-
-  // Use global state instead of local useState
+  const [isScrolled, setIsScrolled] = useState(false);
   const { token, setToken, userData } = useContext(AppContext);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const logout = () => {
     setToken(false);
@@ -17,124 +22,102 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
-      <img
-        className="w-44 cursor-pointer"
-        src={assets.logo}
-        alt="logo"
-        onClick={() => navigate("/")}
-      />
-
-      {/* Desktop Menu */}
-      <ul className="hidden md:flex items-center gap-5 font-medium">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            isActive ? "text-white bg-blue-900 px-4 py-2 rounded-full" : ""
-          }
-          style={{ textDecoration: "none" }}
-        >
-          <li className="py-1 uppercase">Home</li>
-        </NavLink>
-        <NavLink
-          to="/doctors"
-          className={({ isActive }) => (isActive ? "text-white bg-blue-900 px-4 py-2 rounded-full" : "") }style={{ textDecoration: "none" }}
-        >
-          <li className="py-1 uppercase">All Doctors</li>
-        </NavLink>
-        <NavLink
-          to="/about"
-          className={({ isActive }) => (isActive ? "text-white bg-blue-900 px-4 py-2 rounded-full" : "")} style={{ textDecoration: "none" }}
-        >
-          <li className="py-1 uppercase">About</li>
-        </NavLink>
-        <NavLink
-          to="/contact"
-          className={({ isActive }) => (isActive ? "text-white bg-blue-900 px-4 py-2 rounded-full" : "")} style={{ textDecoration: "none" }}
-        >
-          <li className="py-1 uppercase">Contact</li>
-        </NavLink>
-      </ul>
-
-      <div className="flex items-center gap-4">
-        {/* Check for token and userData */}
-        {token && userData ? (
-          <div className="flex items-center gap-2 cursor-pointer group relative">
-            {/* Display actual user image from database or fallback */}
-            <img
-              src={userData.image || assets.profile_pic}
-              alt="profile"
-              className="w-8 h-8 rounded-full object-cover"
+    <nav className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 font-sans ${isScrolled ? 'py-3 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'py-6 bg-white'}`}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10">
+        
+        {/* LOGO */}
+        <div className="flex items-center">
+            <img 
+                onClick={() => { navigate("/"); window.scrollTo(0,0); }} 
+                className="w-32 md:w-36 cursor-pointer hover:opacity-80 transition-opacity" 
+                src={assets.logo} 
+                alt="logo" 
             />
-            <img src={assets.dropdown_icon} alt="dropdown" className="w-2.5" />
+        </div>
 
-            <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block">
-              <div className="min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4 shadow-md">
-                <p
-                  className="hover:text-black cursor-pointer"
-                  onClick={() => navigate("/my-profile")}
-                >
-                  My Profile
-                </p>
-                <p
-                  className="hover:text-black cursor-pointer"
-                  onClick={() => navigate("/my-appointments")}
-                >
-                  My Appointments
-                </p>
-                <p className="hover:text-black cursor-pointer" onClick={logout}>
-                  Logout
-                </p>
+        {/* DESKTOP MENU */}
+       {/* DESKTOP MENU */}
+<ul className="hidden md:flex items-center gap-4">
+  {['Home', 'Doctors', 'About', 'Contact'].map((item) => (
+    <NavLink 
+        key={item} 
+        to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 
+        className={({ isActive }) => 
+          `px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
+            isActive 
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+            : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'
+          }`
+        }
+        style={{ textDecoration: "none" }}
+    >
+      {item}
+    </NavLink>
+  ))}
+</ul>
+
+        {/* USER ACTIONS */}
+        <div className="flex items-center gap-5">
+          {token && userData ? (
+            <div className="flex items-center gap-2 cursor-pointer group relative">
+              <img 
+                src={userData.image || assets.profile_pic} 
+                className="w-9 h-9 object-cover ring-2 ring-slate-100 group-hover:ring-blue-500 transition-all" 
+                style={{ borderRadius: "50px" }}
+              />
+              <img src={assets.dropdown_icon} className="w-2.5 transition-transform group-hover:rotate-180" alt="" />
+              
+              {/* Profile Dropdown */}
+              <div className="absolute top-full right-0 pt-4 hidden group-hover:block animate-in fade-in slide-in-from-top-2">
+                <div className="min-w-[200px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 text-slate-600">
+                  <p onClick={() => navigate("/my-profile")} className="px-4 py-3 hover:bg-blue-50 hover:text-blue-600 rounded-xl text-xs font-bold transition-colors tracking-wide">My Profile</p>
+                  <p onClick={() => navigate("/my-appointments")} className="px-4 py-3 hover:bg-blue-50 hover:text-blue-600 rounded-xl text-xs font-bold transition-colors tracking-wide">Appointments</p>
+                  <div className="my-1 border-t border-slate-50"></div>
+                  <p onClick={logout} className="px-4 py-3 hover:bg-rose-50 text-rose-500 rounded-xl text-xs font-bold transition-colors tracking-wide">Logout</p>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <button
-            className="text-white bg-blue-600  px-4 py-3  font-light hidden md:block"
-            onClick={() => navigate("/login")}
-           style={{borderRadius:"50px"}}>
-            Create account
+          ) : (
+            <button 
+                onClick={() => navigate("/login")} 
+                className="bg-slate-900 text-white px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] hidden md:block hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+                style={{ borderRadius: "50px" }}
+            >
+                Login / Signup
+            </button>
+          )}
+
+          {/* MOBILE MENU TOGGLE */}
+          <button onClick={() => setShowMenu(true)} className="md:hidden p-2.5 bg-slate-50 rounded-full">
+             <img className="w-5" src={assets.menu_icon} alt="menu" />
           </button>
-        )}
-
-        {/* Mobile Menu Trigger */}
-        <img
-          className="w-6 md:hidden cursor-pointer"
-          src={assets.menu_icon}
-          onClick={() => setShowMenu(true)}
-          alt="menu icon"
-        />
-
-        {/* --- Mobile Menu Overlay --- */}
-        <div
-          className={`${showMenu ? "fixed w-full" : "h-0 w-0"} md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
-        >
-          <div className="flex items-center justify-between px-5 py-6">
-            <img src={assets.logo} alt="logo" className="w-36" />
-            <img
-              src={assets.cross_icon}
-              alt="close icon"
-              onClick={() => setShowMenu(false)}
-              className="w-7 cursor-pointer"
-            />
-          </div>
-          <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
-            <NavLink onClick={() => setShowMenu(false)} to="/">
-              <p className="px-4 py-2 rounded inline-block">HOME</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/doctors">
-              <p className="px-4 py-2 rounded inline-block">ALL DOCTORS</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/about">
-              <p className="px-4 py-2 rounded inline-block">ABOUT</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/contact">
-              <p className="px-4 py-2 rounded inline-block">CONTACT</p>
-            </NavLink>
-          </ul>
         </div>
+
+        {/* MOBILE DRAWER */}
+        <div className={`fixed inset-0 z-[2000] bg-white transition-all duration-500 ease-in-out transform ${showMenu ? "translate-x-0" : "translate-x-full"} md:hidden`}>
+            <div className="flex items-center justify-between px-8 py-8 border-b border-slate-50">
+                <img src={assets.logo} className="w-32" alt="" />
+                <button onClick={() => setShowMenu(false)} className="p-3 bg-slate-50 rounded-full">
+                    <img src={assets.cross_icon} className="w-5" alt="close" />
+                </button>
+            </div>
+            
+            <ul className="flex flex-col gap-2 p-8 text-xl font-bold text-slate-900 uppercase tracking-widest">
+                {['Home', 'Doctors', 'About', 'Contact'].map((item) => (
+                    <NavLink 
+                        key={item} 
+                        onClick={() => setShowMenu(false)} 
+                        to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                        className="py-4 border-b border-slate-50 last:border-0 hover:text-blue-600 transition-colors"
+                    >
+                        {item}
+                    </NavLink>
+                ))}
+            </ul>
+        </div>
+
       </div>
-    </div>
+    </nav>
   );
 };
 

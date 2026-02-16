@@ -36,12 +36,13 @@ import General_physician from "./General_physician.svg";
 import Gynecologist from "./Gynecologist.svg";
 import Neurologist from "./Neurologist.svg";
 import Pediatricians from "./Pediatricians.svg";
-import header_img1 from "./header_img1.png"
+import Header_img1 from "./Header_img1.png";
+
+
 
 export const assets = {
   appointment_img,
   header_img,
-  header_img1,
   group_profiles,
   logo,
   chats_icon,
@@ -57,6 +58,7 @@ export const assets = {
   upload_icon,
   stripe_logo,
   razorpay_logo,
+  Header_img1
 };
 
 export const specialityData = [

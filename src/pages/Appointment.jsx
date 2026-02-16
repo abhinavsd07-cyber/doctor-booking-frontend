@@ -23,7 +23,6 @@ const Appointment = () => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState("");
 
-  // --- LOGIC: DATA FETCHING ---
   const loadDoctorDetails = useCallback(() => {
     const selectedDoctor = doctors.find((doc) => doc._id === docId);
     setDoctor(selectedDoctor || null);
@@ -109,11 +108,10 @@ const Appointment = () => {
   useEffect(() => { loadDoctorDetails(); }, [loadDoctorDetails]);
   useEffect(() => { generateSlots(); }, [generateSlots]);
 
-  // --- UI: LOADING STATE ---
   if (!doctor) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
       <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-slate-500 font-medium">Fetching Doctor Profile...</p>
+      <p className="text-slate-500 font-semibold">Fetching Profile...</p>
     </div>
   );
 
@@ -121,46 +119,43 @@ const Appointment = () => {
     <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
       <div className="max-w-6xl mx-auto pt-8 px-4">
         
-        {/* --- GRID LAYOUT --- */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* LEFT: DOCTOR PROFILE STICKY SIDEBAR */}
+          {/* LEFT: DOCTOR PROFILE CARD */}
           <div className="lg:col-span-4">
-            <div className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/60 border border-white sticky top-8">
-              <div className="relative h-96 lg:h-[450px]">
+            <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-200 sticky top-8">
+              <div className="relative h-[400px]">
                 <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm border border-white/50">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-tighter">Verified Specialist</span>
+                <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm border border-slate-100">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Available</span>
                 </div>
               </div>
               
-              <div className="p-8">
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-1">
+              <div className="p-6">
+                <div className="mb-6 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-1">
                     <h1 className="text-2xl font-bold text-slate-900">{doctor.name}</h1>
                     <img src={assets.verified_icon} className="w-5 h-5" alt="" />
                   </div>
-                  <p className="text-blue-600 font-bold text-sm uppercase tracking-wide">{doctor.speciality}</p>
+                  <p className="text-blue-600 font-semibold text-xs uppercase tracking-widest">{doctor.speciality}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Experience</p>
-                    <p className="text-sm font-bold text-slate-700">{doctor.experience}</p>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                    <p className="text-[9px] uppercase text-slate-400 font-bold mb-1">Exp.</p>
+                    <p className="text-sm font-bold text-slate-800">{doctor.experience}</p>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] uppercase text-slate-400 font-bold mb-1">Fee</p>
-                    <p className="text-sm font-bold text-slate-700">${doctor.fees}</p>
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                    <p className="text-[9px] uppercase text-slate-400 font-bold mb-1">Fee</p>
+                    <p className="text-sm font-bold text-slate-800">${doctor.fees}</p>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    About
-                  </h4>
-                  <p className="text-slate-500 text-sm leading-relaxed italic">
-                    "{doctor.about}"
+                <div className="pt-4 border-t border-slate-100">
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Background</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {doctor.about}
                   </p>
                 </div>
               </div>
@@ -170,28 +165,28 @@ const Appointment = () => {
           {/* RIGHT: BOOKING SYSTEM */}
           <div className="lg:col-span-8 space-y-6">
             
-            {/* DATE SECTION */}
-            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/50">
+            {/* DATE PICKER */}
+            <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-200">
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-slate-900">Select Date</h2>
-                <p className="text-slate-400 text-sm">Choose your preferred day for the visit</p>
+                <h2 className="text-lg font-bold text-slate-900">Select Date</h2>
+                <div className="h-1 w-12 bg-blue-600 rounded-full mt-2"></div>
               </div>
 
-              <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+              <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
                 {availableSlots.map((slots, index) => (
                   <button
                     key={index}
                     onClick={() => { setSelectedDayIndex(index); setSelectedTime(""); }}
-                    className={`flex-shrink-0 w-20 py-5 rounded-2xl transition-all duration-300 border-2 ${
+                    className={`flex-shrink-0 w-20 py-4 rounded-2xl transition-all border-2 ${
                       selectedDayIndex === index
-                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-105"
-                        : "bg-white border-slate-100 text-slate-500 hover:border-blue-200"
+                        ? "bg-green-900 border-slate-100 text-white"
+                        : "bg-white border-slate-100 text-slate-500 hover:border-slate-300"
                     }`}
                   >
                     <p className="text-[10px] font-bold uppercase mb-1">
                       {slots[0] && DAYS_OF_WEEK[slots[0].datetime.getDay()]}
                     </p>
-                    <p className="text-xl font-black">
+                    <p className="text-xl font-bold">
                       {slots[0] && slots[0].datetime.getDate()}
                     </p>
                   </button>
@@ -199,11 +194,10 @@ const Appointment = () => {
               </div>
             </div>
 
-            {/* TIME SECTION */}
-            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/50">
-               <div className="mb-6">
-                <h2 className="text-xl font-bold text-slate-900">Available Slots</h2>
-                <p className="text-slate-400 text-sm">Choose a time that works best for you</p>
+            {/* TIME PICKER */}
+            <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-200">
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-slate-900">Available Time</h2>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -211,42 +205,39 @@ const Appointment = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedTime(item.time)}
-                    className={`py-3.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
+                    className={`py-3 px-4 rounded-xl text-xs font-bold transition-all border ${
                       selectedTime === item.time
-                        ? "bg-slate-900 border-slate-900 text-white shadow-md"
-                        : "bg-slate-50 border-transparent text-slate-600 hover:bg-white hover:border-blue-400"
+                        ? "bg-blue-600 border-blue-600 text-white"
+                        : "bg-slate-50 border-transparent text-slate-600 hover:border-blue-200"
                     }`}
                   >
-                    {item.time.toLowerCase()}
+                    {item.time}
                   </button>
                 ))}
               </div>
 
-              {/* BOOKING FOOTER */}
-              <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="text-center sm:text-left">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Scheduled For</p>
-                  <p className="text-slate-900 font-black text-lg">
-                    {availableSlots[selectedDayIndex]?.[0]?.datetime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    {selectedTime ? ` at ${selectedTime}` : ' — Select Time'}
+              {/* FOOTER ACTION */}
+              <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Selected Slot</p>
+                  <p className="text-slate-900 font-bold text-base">
+                    {availableSlots[selectedDayIndex]?.[0]?.datetime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {selectedTime ? ` @ ${selectedTime}` : ' (Please select time)'}
                   </p>
                 </div>
                 
                 <button
                   onClick={handleBookAppointment}
-                  className="w-full sm:w-auto px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-10 py-3.5 bg-blue-600 text-white font-bold text-sm hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-blue-100"
+                  style={{ borderRadius: "50px" }}
                 >
-                  Confirm Appointment
+                  Book Appointment
                 </button>
               </div>
             </div>
 
-            {/* RELATED DOCTORS */}
-            <div className="pt-10">
-              <div className="flex items-center gap-4 mb-8">
-                <h3 className="text-lg font-bold text-slate-900">Similar Specialists</h3>
-                <div className="h-px flex-1 bg-slate-200"></div>
-              </div>
+            {/* RELATED SECTION */}
+            <div className="pt-6">
               <RelatedDoctors docId={docId} speciality={doctor.speciality} />
             </div>
           </div>
