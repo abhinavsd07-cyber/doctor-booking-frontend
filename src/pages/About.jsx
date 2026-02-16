@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 const About = () => {
   return (
-    <div className='md:mx-10'>
+    <div className='md:mx-10 container'>
       
       {/* --- Section Header --- */}
       <motion.div 

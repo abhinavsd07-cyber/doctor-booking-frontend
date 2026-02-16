@@ -34,7 +34,7 @@ const Banner = () => {
 
           <button 
             onClick={() => { navigate("/login"); window.scrollTo(0, 0); }} 
-            className="group relative bg-slate-900 text-white text-xs sm:text-sm font-bold uppercase tracking-widest px-10 py-4 mt-8 transition-all duration-300 active:scale-95 shadow-xl hover:bg-white hover:text-blue-600"
+            className="group relative bg-slate-900 text-white text-xs sm:text-sm font-bold uppercase tracking-widest px-10 py-4 mt-8 transition-all duration-300 active:scale-95 shadow-xl hover:text-blue-600"
             style={{ borderRadius: "50px" }}
           >
             Create account
