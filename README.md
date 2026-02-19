@@ -2,11 +2,11 @@
 A comprehensive, enterprise-grade medical ecosystem designed to streamline the interaction between Patients, Doctors, and Administrators. This platform automates scheduling, tracks financial performance, and provides a secure portal for medical professionals to manage their practice.
 
 🚀 Live Links
-Admin Dashboard: [Link]
+Admin Dashboard: [https://doctor-booking-admin.vercel.app/]
 
-Doctor Portal: [Link]
+Doctor Portal: [https://doctor-booking-admin.vercel.app/]
 
-Patient Website: [Link]
+Patient Website: [https://doctor-booking-frontend-virid.vercel.app/]
 
 🛠️ The Full-Stack Technology Suite
 Frontend (Client-Side)
@@ -114,10 +114,10 @@ RBAC (Role-Based Access Control): Custom Express middleware ensures that Admin t
 Image Processing: Used Multer to handle local file buffers before streaming them to Cloudinary for permanent storage.
 
 👤 Developer
-Name: [Your Name]
+Name: Abhinav S D
 Role: Full-Stack Developer
 Location: Bangalore, India
-Connect: [LinkedIn Link] | [GitHub Link]
+Connect: [LinkedIn:https://linkedin.com/in/abhinav-s-d] | [GitHub:https://github.com/abhinavsd07-cyber]
 
 📝 Final Status
 Project Status: 🟢 Completed & Production Ready.
